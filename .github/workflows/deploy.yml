@@ -1,4 +1,4 @@
-name: Deploy static site to GitHub Pages
+name: Deploy static site to gh-pages
 
 on:
   push:
@@ -10,15 +10,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node (optional, lets the action detect files)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./src
-          # keep default publish_branch: gh-pages
