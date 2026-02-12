@@ -1,0 +1,175 @@
+/* make sizing predictable across elements */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    position: relative;
+    margin: 0;
+    background: radial-gradient(circle at 10% 10%, #fff6fb 0%, transparent 30%),
+                linear-gradient(180deg, #ffe6f0 0%, #ffdbe9 50%, #fff0f6 100%);
+    background-attachment: fixed;
+    font-family: "Poppins", "Comic Sans MS", cursive, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    color: #d5006d;
+    overflow: hidden;
+}
+
+/* soft repeating heart pattern */
+body::before {
+    content: "";
+    position: absolute;
+    inset: -10%;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(255,105,180,0.06) 0 25%, transparent 26%),
+      radial-gradient(circle at 80% 60%, rgba(255,105,180,0.07) 0 25%, transparent 26%),
+      radial-gradient(circle at 50% 80%, rgba(255,182,193,0.05) 0 25%, transparent 26%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* floating hearts */
+body::after {
+    content: "💕";
+    position: absolute;
+    top: 8%;
+    right: 6%;
+    font-size: 5rem;
+    opacity: 0.08;
+    transform: rotate(-15deg);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* card-like content area */
+.container {
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,244,249,0.95));
+    padding: 36px 48px;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(198, 0, 115, 0.12);
+    backdrop-filter: blur(6px);
+    display: inline-block;
+    max-width: 720px;
+
+    /* make container the positioning context for the No button */
+    position: relative;
+}
+
+/* Title */
+h1 {
+    font-size: 2.6em;
+    margin: 0 0 12px;
+    color: #c60073;
+    letter-spacing: 1px;
+}
+
+/* subtext */
+p.lead {
+    margin: 0 0 18px;
+    color: #b0005a;
+    font-size: 1.05rem;
+}
+
+/* Buttons wrapper so yes is centered and no is free to move */
+.buttons {
+    /* horizontal layout: Yes on left, No on right (initially)
+       width constrains how far apart they appear inside the card */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: min(520px, 78%);
+    margin: 0 auto;
+    padding-top: 18px;
+    position: relative;
+}
+
+/* common button style */
+.no-button {
+    position: absolute; /* place relative to .container */
+    z-index: 3;
+    border-radius: 999px;
+    color: white;
+    font-size: 1.15em;
+    padding: 12px 26px;
+    cursor: pointer;
+    transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s;
+    box-shadow: 0 6px 18px rgba(198, 0, 115, 0.12);
+    outline: none;
+    user-select: none;
+}
+
+/* Yes style - larger, heart icon */
+.yes-button {
+    position: relative;
+    font-weight: 700;
+    background: linear-gradient(180deg,#ff4e98 0%,#ff6fb3 100%);
+    padding: 14px 32px;
+    font-size: 1.15rem;
+    border-radius: 40px;
+}
+.yes-button::before {
+    content: "💞";
+    margin-right: 10px;
+    display: inline-block;
+}
+
+/* No style - fixed to viewport so it won't be clipped */
+.no-button {
+    position: fixed;
+    z-index: 9999;
+    box-sizing: border-box;
+    background: #fff;
+    color: #d5006d;
+    border: 2px solid #ffd1e6;
+    padding: 10px 22px;
+    border-radius: 20px;
+    font-weight: 700;
+    box-shadow: 0 8px 28px rgba(213, 0, 109, 0.10);
+}
+
+/* hover/active */
+button:hover {
+    transform: translateY(-3px);
+}
+button:active {
+    transform: translateY(0);
+}
+
+/* Modal styles */
+.modal { display: none; }
+.modal.open { display: block; z-index: 10000; }
+.modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.28); backdrop-filter: blur(2px);
+}
+.modal-card {
+    position: fixed;
+    left: 50%; top: 50%;
+    transform: translate(-50%,-50%);
+    background: linear-gradient(180deg,#fff0f6, #fff);
+    border-radius: 16px; padding: 24px;
+    width: min(560px, 94%);
+    box-shadow: 0 24px 60px rgba(198,0,115,0.18);
+    z-index: 10001; text-align: center;
+}
+.modal-body .modal-heart { font-size: 3rem; margin-bottom: 8px; }
+.modal-body h2 { margin: 0 0 8px; color: #c60073; }
+.modal-body .modal-text { color: #9a0f58; margin-bottom: 18px; }
+.modal-close {
+    position: absolute; right: 12px; top: 10px;
+    background: transparent; border: none; font-size: 1.1rem;
+    color: #9a0f58; cursor: pointer;
+}
+
+/* small screens */
+@media (max-width: 480px) {
+    h1 { font-size: 1.6em; }
+    .yes-button { padding: 10px 18px; font-size: 1rem; }
+    .no-button { padding: 8px 14px; font-size: 0.95rem; }
+    .modal-card { padding: 16px; }
+}

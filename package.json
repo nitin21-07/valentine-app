@@ -1,0 +1,21 @@
+{
+  "name": "valentine-app",
+  "version": "1.0.0",
+  "description": "A playful web application asking if you will be my Valentine.",
+  "main": "src/index.html",
+  "scripts": {
+    "start": "npx serve ./src -l 3000"
+  },
+  "keywords": [
+    "valentine",
+    "romantic",
+    "playful",
+    "web-app"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
