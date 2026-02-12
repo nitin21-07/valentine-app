@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Will You Be My Valentine?</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>SONI — will you be my Valentine?</h1>
+        <p class="lead">You make my days brighter. Say you'll be mine 💖</p>
+
+        <div class="buttons" aria-hidden="false">
+            <button id="yes-button" class="yes-button">Yes</button>
+            <button id="no-button" class="no-button" aria-hidden="true">No</button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+        <div class="modal-backdrop" id="modal-backdrop" tabindex="-1"></div>
+        <div class="modal-card" role="document">
+            <button id="modal-close" class="modal-close" aria-label="Close">✕</button>
+            <div class="modal-body">
+                <div class="modal-heart">💖</div>
+                <h2 id="modal-title">Yay, Soni!</h2>
+                <p class="modal-text">I’m so happy — thank you for being my Valentine. You light up my life. ❤️</p>
+                <button id="modal-ok" class="yes-button">Forever & Always</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
