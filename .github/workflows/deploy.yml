@@ -4,14 +4,30 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Ensure .nojekyll present
+        run: |
+          mkdir -p src
+          if [ ! -f src/.nojekyll ]; then
+            touch src/.nojekyll
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          fi
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./src
+          publish_branch: gh-pages
+          # optional: keep existing files on gh-pages (set to false to fully replace)
+          keep_files: false
+          # helpful commit message
+          commit_message: "deploy: publish site from ./src via GitHub Actions"
