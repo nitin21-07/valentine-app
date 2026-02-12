@@ -1,160 +1,184 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const yesButton = document.getElementById('yes-button');
-    const noButton = document.getElementById('no-button');
-    const modal = document.getElementById('modal');
-    const modalClose = document.getElementById('modal-close');
-    const modalOk = document.getElementById('modal-ok');
-    const modalBackdrop = document.getElementById('modal-backdrop');
+// Valentine app interactions
+(() => {
+	const intro = document.getElementById('intro');
+	const ask = document.getElementById('ask');
+	const overlay = document.getElementById('overlay');
+	const heartsRoot = document.getElementById('hearts');
 
-    if (!yesButton || !noButton || !modal) return;
+	const nameInput = document.getElementById('name-input');
+	const startBtn = document.getElementById('start-button');
+	const yesBtn = document.getElementById('yes-button');
+	const noBtn = document.getElementById('no-button');
+	const greeting = document.getElementById('greeting');
+	const resultTitle = document.getElementById('result-title');
+	const resultText = document.getElementById('result-text');
+	const resultEmoji = document.getElementById('result-emoji');
+	const restart = document.getElementById('restart');
 
-    // make No absolute so it stays within the .container element
-    const container = document.querySelector('.container');
-    if (!container) return;
-    noButton.style.position = 'absolute';
-    noButton.style.transition = 'left 0.18s ease, top 0.18s ease, transform 0.12s ease';
-    noButton.style.zIndex = '3';
-    noButton.style.pointerEvents = 'auto';
+	let name = '';
+	let evadeCount = 0;
 
-    const padding = 12;
-    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+	startBtn.addEventListener('click', () => {
+		const raw = nameInput.value.trim();
+		if (!raw) {
+			nameInput.focus();
+			nameInput.classList.add('pulse');
+			setTimeout(() => nameInput.classList.remove('pulse'), 420);
+			return;
+		}
+		name = raw;
+		greeting.textContent = `Hey ${name} —`; // personalize
+		intro.classList.add('hidden');
+		ask.classList.remove('hidden');
+		// move focus to yes for keyboard users
+		yesBtn.focus();
+	});
 
-    const placeInitial = () => {
-        const yesRect = yesButton.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
+	// Yes handler — show romantic overlay and hearts
+	yesBtn.addEventListener('click', () => {
+		yesBtn.classList.add('pulse');
+		setTimeout(() => yesBtn.classList.remove('pulse'), 420);
+		showResult(true);
+		sprinkleHearts(28);
+	});
 
-        // measure Yes and compute a target size for No (match Yes)
-        const targetW = Math.max(Math.round(yesRect.width), 56); // fallback min width
-        const targetH = Math.max(Math.round(yesRect.height), 36); // fallback min height
+	// No is evasive: it moves to a random spot within the container on mouseenter
+	noBtn.addEventListener('mouseenter', (e) => {
+		evadeCount++;
+		const container = document.querySelector('#ask .container');
+		const rect = container.getBoundingClientRect();
+		// compute random position inside rect but keep button visible
+		const btnW = noBtn.offsetWidth;
+		const btnH = noBtn.offsetHeight;
+		const padding = 12;
+		const maxX = Math.max(0, rect.width - btnW - padding);
+		const maxY = Math.max(0, rect.height - btnH - padding);
+		const x = Math.floor(Math.random() * maxX) + rect.left + padding;
+		const y = Math.floor(Math.random() * maxY) + rect.top + padding;
 
-        // ensure the No button will fit in the viewport; if not, shrink it
-        const maxAllowedW = Math.max(24, window.innerWidth - (padding * 2));
-        const maxAllowedH = Math.max(20, window.innerHeight - (padding * 2));
-        const finalW = Math.min(targetW, maxAllowedW);
-        const finalH = Math.min(targetH, maxAllowedH);
+		// position fixed relative to viewport to make it feel playful
+		noBtn.style.position = 'fixed';
+		noBtn.style.left = `${Math.min(window.innerWidth - btnW - 8, x)}px`;
+		noBtn.style.top = `${Math.min(window.innerHeight - btnH - 8, y)}px`;
 
+		// after a few evasions, gently stop avoiding and let click happen
+		if (evadeCount > 6) {
+			noBtn.removeEventListener('mouseenter', arguments.callee);
+			noBtn.textContent = "...okay maybe?";
+		}
+	});
 
-        noButton.style.width = `${finalW}px`;
-        noButton.style.height = `${finalH}px`;
-        noButton.style.lineHeight = `${finalH}px`;
+	// If the user clicks No, run a romantic persuasion sequence and then auto-accept (Yes)
+	noBtn.addEventListener('click', () => {
+		// lines to persuade — short romantic lines
+		const lines = [
+			`${name}, your smile is my favorite sight.`,
+			`Every moment with you feels like a favorite song.`,
+			`If I had one wish, it would be to hold your hand forever.`,
+			`Say yes and let's make our story the sweetest one. 💞`
+		];
 
-        // read actual rendered size (includes borders/padding) and adjust if needed
-        let actualW = noButton.offsetWidth;
-        let actualH = noButton.offsetHeight;
-        // if the rendered size is still too large for viewport, shrink it to fit
-        if (actualW > window.innerWidth - padding * 2) {
-            actualW = window.innerWidth - padding * 2;
-            noButton.style.width = `${actualW}px`;
-        }
-        if (actualH > window.innerHeight - padding * 2) {
-            actualH = window.innerHeight - padding * 2;
-            noButton.style.height = `${actualH}px`;
-            noButton.style.lineHeight = `${actualH}px`;
-        }
+		// temporarily disable the No button so user can't spam it
+		noBtn.disabled = true;
+		noBtn.style.pointerEvents = 'none';
+		noBtn.textContent = '...listening';
 
-    // compute left so centered with Yes, and top directly above Yes using actual sizes
-    // convert to coordinates relative to the container (because No is absolute inside it)
-    let left = (yesRect.left - containerRect.left) + (yesRect.width - actualW) / 2;
-    let top = (yesRect.top - containerRect.top) - actualH - 8; // 8px gap above yes
+		persuadeThenAccept(lines, 2000);
+	});
 
-        // if not enough space above, put below yes
-        if (top < padding) {
-            // place below yes (relative to container)
-            top = (yesRect.bottom - containerRect.top) + 8;
-        }
+	restart.addEventListener('click', () => {
+		overlay.classList.add('hidden');
+		intro.classList.remove('hidden');
+		ask.classList.add('hidden');
+		nameInput.value = '';
+		nameInput.focus();
+		// reset no button position
+		noBtn.style.position = '';
+		noBtn.style.left = '';
+		noBtn.style.top = '';
+		noBtn.textContent = 'No';
+		evadeCount = 0;
+	});
 
-        // clamp into container bounds
-        left = clamp(left, padding, containerRect.width - actualW - padding);
-        top = clamp(top, padding, containerRect.height - actualH - padding);
+	// Persuasion UI: show lines one-by-one and then trigger acceptance
+	function persuadeThenAccept(lines = [], interval = 1500) {
+		// create card
+		const card = document.createElement('div');
+		card.className = 'persuade-card';
+		const lineEl = document.createElement('div');
+		lineEl.className = 'persuade-line';
+		card.appendChild(lineEl);
+		document.body.appendChild(card);
 
-        noButton.style.left = `${left}px`;
-        noButton.style.top = `${top}px`;
-    };
+		let i = 0;
+		const t = setInterval(() => {
+			lineEl.textContent = lines[i] || '';
+			lineEl.classList.remove('visible');
+			// force reflow to restart animation
+			void lineEl.offsetWidth;
+			lineEl.classList.add('visible');
+			i++;
+			if (i >= lines.length) {
+				clearInterval(t);
+				// after a short pause, remove card and trigger Yes
+				setTimeout(() => {
+					card.classList.add('fade-out');
+					setTimeout(() => card.remove(), 420);
+					// restore no button state
+					noBtn.disabled = false;
+					noBtn.style.pointerEvents = '';
+					noBtn.textContent = 'No';
+					// programmatically accept
+					yesBtn.click();
+				}, 900);
+			}
+		}, interval);
+	}
 
-    // small delay to allow layout to finish and fonts to load
-    setTimeout(placeInitial, 60);
-    window.addEventListener('resize', () => {
-        // on resize, recalc size & position relative to Yes
-        placeInitial();
-    });
+	function showResult(accepted) {
+		overlay.classList.remove('hidden');
+		if (accepted) {
+			resultEmoji.textContent = '💘';
+			resultTitle.textContent = `Yes, ${name}!`;
+			resultText.textContent = `You just made my heart so happy. Let's make every day special together.`;
+		} else {
+			resultEmoji.textContent = '🤍';
+			resultTitle.textContent = `That's okay, ${name}`;
+			resultText.textContent = `No pressure — I'll still think you're wonderful. If you change your mind, I'm right here.`;
+		}
+	}
 
-    const moveAway = (ev) => {
-        const containerRect = container.getBoundingClientRect();
-        const noW = noButton.offsetWidth;
-        const noH = noButton.offsetHeight;
-        // compute allowed min/max positions for left/top inside container coordinates
-        const minX = padding;
-        const minY = padding;
-        const maxX = Math.max(minX, containerRect.width - noW - padding);
-        const maxY = Math.max(minY, containerRect.height - noH - padding);
-        const yesRect = yesButton.getBoundingClientRect();
+	// create floating heart elements that animate up and fade
+	function sprinkleHearts(count = 12) {
+		for (let i = 0; i < count; i++) {
+			const heart = document.createElement('div');
+			heart.className = 'heart';
+			heart.textContent = (Math.random() > 0.5) ? '💖' : '💕';
+			// random horizontal start
+			const startX = Math.random() * window.innerWidth;
+			const startY = window.innerHeight - 40 + (Math.random() * 20);
+			heart.style.left = `${startX}px`;
+			heart.style.top = `${startY}px`;
+			heart.style.fontSize = `${12 + Math.floor(Math.random() * 28)}px`;
+			heart.style.opacity = `${0.9 - Math.random() * 0.4}`;
+			// slight delay for wave effect
+			heart.style.animationDelay = `${Math.random() * 600}ms`;
 
-        let x, y, attempts = 0;
-        do {
-            // biased away from cursor: prefer corners
-            const corner = Math.random() > 0.6;
-            if (corner) {
-                x = Math.random() > 0.5 ? maxX : minX;
-                y = Math.random() > 0.5 ? maxY : minY;
-            } else {
-                x = (Math.random() * (maxX - minX)) + minX;
-                y = (Math.random() * (maxY - minY)) + minY;
-            }
-            attempts++;
-            // avoid overlapping yes area
-            const overlapX = (x < yesRect.right && (x + noW) > yesRect.left);
-            const overlapY = (y < yesRect.bottom && (y + noH) > yesRect.top);
-            if (!(overlapX && overlapY) || attempts > 30) break;
-        } while (attempts < 60);
+			heartsRoot.appendChild(heart);
+			// cleanup after animation
+			setTimeout(() => {
+				heart.remove();
+			}, 3800);
+		}
+	}
 
-    x = clamp(x, minX, maxX);
-    y = clamp(y, minY, maxY);
+	// allow Enter key to submit name
+	nameInput.addEventListener('keydown', (e) => {
+		if (e.key === 'Enter') startBtn.click();
+	});
 
-    // set position relative to container (No is absolute inside container)
-    noButton.style.left = `${x}px`;
-    noButton.style.top = `${y}px`;
-        noButton.style.transform = 'translateY(-4px)';
-        setTimeout(() => { noButton.style.transform = ''; }, 160);
-    };
-
-    noButton.addEventListener('mouseover', moveAway);
-    // remove mousemove to avoid jitter on small screens; keep hover/focus
-    noButton.addEventListener('focus', moveAway);
-
-    noButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        noButton.style.transform = 'scale(0.98)';
-        setTimeout(() => noButton.style.transform = '', 120);
-    });
-
-    // Modal control
-    const openModal = () => {
-        modal.classList.add('open');
-        modal.setAttribute('aria-hidden', 'false');
-        setTimeout(() => modalOk && modalOk.focus(), 60);
-    };
-    const closeModal = () => {
-        modal.classList.remove('open');
-        modal.setAttribute('aria-hidden', 'true');
-        yesButton.focus();
-    };
-
-    yesButton.addEventListener('click', openModal);
-    modalClose && modalClose.addEventListener('click', closeModal);
-    modalOk && modalOk.addEventListener('click', closeModal);
-    modalBackdrop && modalBackdrop.addEventListener('click', closeModal);
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
-    });
-
-    // safety: clamp if viewport changes after moves
-    window.addEventListener('resize', () => {
-        const left = parseFloat(noButton.style.left) || 0;
-        const top = parseFloat(noButton.style.top) || 0;
-        const maxX = Math.max(padding, window.innerWidth - noButton.offsetWidth - padding);
-        const maxY = Math.max(padding, window.innerHeight - noButton.offsetHeight - padding);
-        if (left > maxX) noButton.style.left = `${maxX}px`;
-        if (top > maxY) noButton.style.top = `${maxY}px`;
-    });
-});
+	// small accessibility helper: focus start field on load
+	window.addEventListener('load', () => {
+		nameInput.focus();
+	});
+})();
