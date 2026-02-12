@@ -1,36 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Will You Be My Valentine?</title>
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>SONI — will you be my Valentine?</h1>
-        <p class="lead">You make my days brighter. Say you'll be mine 💖</p>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Will You Be My Valentine?</title>
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <main class="stage">
+            <!-- Step 1: Ask for name -->
+            <section id="intro" class="screen">
+                <div class="container card">
+                    <p class="lead">Enter your name</p>
+                    <input id="name-input" class="name-input" type="text" placeholder="Enter your name" autocomplete="name" />
+                    <div class="controls">
+                        <button id="start-button" class="yes-button">Continue</button>
+                    </div>
+                    <p class="hint">Tip: use your nickname — I love it when it's personal 💕</p>
+                </div>
+            </section>
 
-        <div class="buttons" aria-hidden="false">
-            <button id="yes-button" class="yes-button">Yes</button>
-            <button id="no-button" class="no-button" aria-hidden="true">No</button>
-        </div>
-    </div>
+            <!-- Step 2: Ask the question -->
+            <section id="ask" class="screen hidden">
+                <div class="container card">
+                    <h1 id="greeting" class="title">Hey there!</h1>
+                    <p class="lead">Will you be my Valentine?</p>
 
-    <!-- Modal -->
-    <div id="modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="modal-title" aria-modal="true">
-        <div class="modal-backdrop" id="modal-backdrop" tabindex="-1"></div>
-        <div class="modal-card" role="document">
-            <button id="modal-close" class="modal-close" aria-label="Close">✕</button>
-            <div class="modal-body">
-                <div class="modal-heart">💖</div>
-                <h2 id="modal-title">Yay, Soni!</h2>
-                <p class="modal-text">I’m so happy — thank you for being my Valentine. You light up my life. ❤️</p>
-                <button id="modal-ok" class="yes-button">Forever & Always</button>
+                    <div class="buttons">
+                        <button id="yes-button" class="yes-button">Yes</button>
+                        <button id="no-button" class="no-button">No</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Result overlay -->
+            <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true">
+                <div class="overlay-card">
+                    <div id="result-emoji" class="result-emoji">💖</div>
+                    <h2 id="result-title"></h2>
+                    <p id="result-text"></p>
+                    <div class="controls">
+                        <button id="restart" class="yes-button">Ask again</button>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <script src="js/app.js"></script>
-</body>
+            <!-- floating hearts container (created/filled by JS) -->
+            <div id="hearts" aria-hidden="true"></div>
+        </main>
+
+        <script src="js/app.js"></script>
+    </body>
 </html>
